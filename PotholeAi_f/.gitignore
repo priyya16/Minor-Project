@@ -1,0 +1,35 @@
+# PotholeAi – git ignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Model files (large – add manually to server or use Git LFS)
+model/*.h5
+model/*.keras
+model/*.pb
+*.h5
+*.keras
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Env vars
+.env
+.env.local

@@ -1,0 +1,7 @@
+flask>=2.3.0
+flask-cors>=4.0.0
+Pillow>=10.0.0
+numpy>=1.24.0
+gunicorn>=21.2.0
+# Uncomment below when you add your model file:
+# tensorflow-cpu>=2.12.0

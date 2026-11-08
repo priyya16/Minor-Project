@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PotholeAI – Road Surface Classification</title>
+  <meta name="description" content="AI-powered pothole and plain road classification system using MobileNetV2 transfer learning. Upload road images to detect potholes instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ─── NAV ─────────────────────────────────────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">
+      <span class="nav-logo-icon">🛣️</span>
+      <span>PotholeAI</span>
+    </a>
+    <div class="nav-links">
+      <a href="#hero"      class="nav-link" data-section="hero">Home</a>
+      <a href="#detect"    class="nav-link" data-section="detect">Detect</a>
+      <a href="#dashboard" class="nav-link" data-section="dashboard">Dashboard</a>
+      <a href="#model"     class="nav-link" data-section="model">Model Info</a>
+    </div>
+    <div class="nav-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle light / dark theme">
+        <span class="theme-icon theme-icon-sun">☀️</span>
+        <span class="theme-icon theme-icon-moon">🌙</span>
+      </button>
+      <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ─────────────────────────────────────────────────────────────────── -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="grid-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      <span>AI-Powered Road Analysis</span>
+    </div>
+    <h1 class="hero-title">
+      Detect Potholes<br/>
+      <span class="gradient-text">Instantly with AI</span>
+    </h1>
+    <p class="hero-sub">
+      A MobileNetV2 transfer-learning model trained on real road imagery —
+      classifies road surfaces as <strong>Plain</strong> or <strong>Pothole</strong>
+      with high confidence, in milliseconds.
+    </p>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <span class="stat-num">224px</span>
+        <span class="stat-lbl">Input Size</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">MobileNetV2</span>
+        <span class="stat-lbl">Architecture</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">2</span>
+        <span class="stat-lbl">Classes</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">~730</span>
+        <span class="stat-lbl">Training Images</span>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="#detect" class="btn btn-primary" id="try-btn">
+        <span>Try It Now</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#dashboard" class="btn btn-ghost">View Dashboard</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="phone-mock">
+      <div class="phone-screen">
+        <div class="scan-line"></div>
+        <div class="road-preview">
+          <div class="road-label pothole-label">⚠ Pothole</div>
+          <div class="road-label plain-label">✓ Plain</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MODEL STATUS BANNER ──────────────────────────────────────────────────── -->
+<div class="status-banner" id="status-banner">
+  <div class="status-inner" id="status-inner">
+    <span class="status-spinner" id="status-spinner">⟳</span>
+    <span id="status-text">Checking model status…</span>
+  </div>
+</div>
+
+<!-- ─── DETECT ───────────────────────────────────────────────────────────────── -->
+<section class="section detect-section" id="detect">
+  <div class="section-header">
+    <div class="section-tag">Inference</div>
+    <h2 class="section-title">Road Surface Detection</h2>
+    <p class="section-sub">Upload a road image and let the AI classify it in real-time.</p>
+  </div>
+
+  <div class="detect-grid">
+    <!-- Upload Panel -->
+    <div class="card upload-card" id="upload-card">
+      <div class="upload-zone" id="drop-zone">
+        <div class="upload-icon-wrap">
+          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <p class="upload-title">Drag &amp; drop a road image</p>
+        <p class="upload-sub">or click to browse</p>
+        <p class="upload-hint">JPG, PNG, BMP, WEBP · Max 10 MB</p>
+        <input type="file" id="file-input" accept="image/*" hidden />
+        <button class="btn btn-outline" id="browse-btn">Browse Files</button>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-wrap" id="preview-wrap" style="display:none;">
+        <img id="preview-img" src="" alt="Preview" class="preview-img" />
+        <div class="preview-actions">
+          <button class="btn btn-sm btn-ghost" id="reset-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+            Reset
+          </button>
+          <button class="btn btn-sm btn-primary" id="predict-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Analyse
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="card results-card" id="results-card">
+      <!-- Empty state -->
+      <div class="results-empty" id="results-empty">
+        <div class="empty-icon">🔍</div>
+        <p>Upload an image to see the prediction here.</p>
+      </div>
+
+      <!-- Loading state -->
+      <div class="results-loading" id="results-loading" style="display:none;">
+        <div class="loader-ring"></div>
+        <p>Analysing image…</p>
+      </div>
+
+      <!-- Result state -->
+      <div class="results-content" id="results-content" style="display:none;">
+        <div class="result-badge" id="result-badge"></div>
+        <div class="confidence-section">
+          <p class="conf-label">Confidence</p>
+          <div class="conf-bar-wrap">
+            <div class="conf-bar" id="conf-bar">
+              <div class="conf-fill" id="conf-fill"></div>
+            </div>
+            <span class="conf-pct" id="conf-pct"></span>
+          </div>
+        </div>
+        <div class="prob-grid" id="prob-grid"></div>
+        <div class="result-meta" id="result-meta"></div>
+      </div>
+
+      <!-- Error state -->
+      <div class="results-error" id="results-error" style="display:none;">
+        <div class="error-icon">⚠</div>
+        <p id="error-text"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── DASHBOARD ─────────────────────────────────────────────────────────────── -->
+<section class="section dashboard-section" id="dashboard">
+  <div class="section-header">
+    <div class="section-tag">Analytics</div>
+    <h2 class="section-title">Model Dashboard</h2>
+    <p class="section-sub">Training details and dataset breakdown as reported in the Kaggle notebook.</p>
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- Dataset split -->
+    <div class="card dash-card">
+      <h3 class="dash-card-title">Dataset Split</h3>
+      <div class="split-bars">
+        <div class="split-row">
+          <span class="split-lbl">Train</span>
+          <div class="split-bar-wrap"><div class="split-bar" style="width:70%"></div></div>
+          <span class="split-val">~510 imgs</span>
+        </div>
+        <div class="split-row">
+          <span class="split-lbl">Validation</span>
+          <div class="split-bar-wrap"><div class="split-bar split-bar-val" style="width:15%"></div></div>
+          <span class="split-val">~109 imgs</span>
+        </div>
+        <div class="split-row">
+          <span class="split-lbl">Test</span>
+          <div class="split-bar-wrap"><div class="split-bar split-bar-test" style="width:15%"></div></div>
+          <span class="split-val">~113 imgs</span>
+        </div>
+      </div>
+      <p class="dash-note">Source: Kaggle – virenbr11/pothole-and-plain-road-images-images</p>
+    </div>
+
+    <!-- Architecture card -->
+    <div class="card dash-card">
+      <h3 class="dash-card-title">Model Architecture</h3>
+      <div class="arch-flow">
+        <div class="arch-block arch-input">Input 224×224×3</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-block arch-backbone">MobileNetV2 Backbone<br/><small>(pretrained ImageNet)</small></div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-block arch-pool">GlobalAveragePooling2D</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-block arch-dense">Dense(128, ReLU) + Dropout</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-block arch-out">Dense(1, Sigmoid) → Binary Output</div>
+      </div>
+    </div>
+
+    <!-- Training config -->
+    <div class="card dash-card">
+      <h3 class="dash-card-title">Training Configuration</h3>
+      <table class="config-table">
+        <tbody>
+          <tr><td>Batch Size</td><td><code>32</code></td></tr>
+          <tr><td>Input Size</td><td><code>224 × 224</code></td></tr>
+          <tr><td>Normalisation</td><td><code>pixel / 255</code></td></tr>
+          <tr><td>Backbone</td><td><code>MobileNetV2</code></td></tr>
+          <tr><td>Output Activation</td><td><code>Sigmoid</code></td></tr>
+          <tr><td>Loss Function</td><td><code>Binary Crossentropy</code></td></tr>
+          <tr><td>Framework</td><td><code>TensorFlow / Keras</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Augmentation -->
+    <div class="card dash-card">
+      <h3 class="dash-card-title">Data Augmentation</h3>
+      <div class="aug-list">
+        <div class="aug-item"><span class="aug-icon">↩</span> Rotation ±15°</div>
+        <div class="aug-item"><span class="aug-icon">↔</span> Width shift ±10%</div>
+        <div class="aug-item"><span class="aug-icon">↕</span> Height shift ±10%</div>
+        <div class="aug-item"><span class="aug-icon">🔍</span> Zoom ±10%</div>
+        <div class="aug-item"><span class="aug-icon">⇄</span> Horizontal Flip</div>
+      </div>
+    </div>
+
+    <!-- Classes -->
+    <div class="card dash-card">
+      <h3 class="dash-card-title">Output Classes</h3>
+      <div class="class-cards">
+        <div class="class-item class-plain">
+          <div class="class-icon">🛣️</div>
+          <div class="class-name">Plain Road</div>
+          <div class="class-desc">Smooth, undamaged road surface — no structural defects detected.</div>
+        </div>
+        <div class="class-item class-pothole">
+          <div class="class-icon">⚠️</div>
+          <div class="class-name">Pothole</div>
+          <div class="class-desc">Damaged road surface — structural deterioration or depression detected.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evaluation note -->
+    <div class="card dash-card dash-card-wide">
+      <h3 class="dash-card-title">Evaluation &amp; Metrics</h3>
+      <div class="eval-note">
+        <div class="eval-icon">📊</div>
+        <div>
+          <p>The Kaggle notebook reports comprehensive evaluation using <strong>Precision, Recall, F1-score, ROC-AUC, Confusion Matrix</strong>, and <strong>Grad-CAM</strong> explainability visualisations.</p>
+          <p style="margin-top:0.5rem">Exact numeric metrics are available in the
+            <a href="https://www.kaggle.com/code/priyapedhadiya/pothole-and-plain-road-classification-final" target="_blank" rel="noopener" class="eval-link">Kaggle notebook</a>.
+            Connecting the trained model file enables live inference here.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MODEL INFO ────────────────────────────────────────────────────────────── -->
+<section class="section model-section" id="model">
+  <div class="section-header">
+    <div class="section-tag">About</div>
+    <h2 class="section-title">Model Information</h2>
+    <p class="section-sub">Everything you need to know about the classifier behind PotholeAI.</p>
+  </div>
+
+  <div class="model-grid">
+    <div class="card model-card">
+      <div class="model-card-icon">🧠</div>
+      <h3>Transfer Learning</h3>
+      <p>MobileNetV2 pretrained on ImageNet is fine-tuned for road surface classification, achieving robust generalisation even with a small training set.</p>
+    </div>
+    <div class="card model-card">
+      <div class="model-card-icon">📦</div>
+      <h3>Dataset</h3>
+      <p>Images sourced from the Kaggle dataset <em>virenbr11/pothole-and-plain-road-images-images</em>, split into train, validation and test sets.</p>
+    </div>
+    <div class="card model-card">
+      <div class="model-card-icon">⚙️</div>
+      <h3>Preprocessing</h3>
+      <p>Images are resized to 224×224, pixel values normalised to [0, 1], and augmented during training to improve robustness.</p>
+    </div>
+    <div class="card model-card">
+      <div class="model-card-icon">⚠️</div>
+      <h3>Limitations</h3>
+      <ul class="limit-list">
+        <li>Performance may degrade in extreme lighting conditions.</li>
+        <li>Binary only – does not assess pothole severity or size.</li>
+        <li>Trained on ~730 images; more data would improve accuracy.</li>
+        <li>May not generalise to regions not in the training distribution.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- How to activate real predictions -->
+  <div class="card activate-card" id="activate-card">
+    <div class="activate-header">
+      <span class="activate-icon">🔌</span>
+      <h3>Activate Live Predictions</h3>
+    </div>
+    <p>To enable real ML predictions, export your trained Keras model and place it in the <code>model/</code> folder:</p>
+    <pre class="code-block"><code># In your Kaggle notebook / training script:
+model.save("pothole_model.h5")
+
+# Then place the file at:
+PotholeAi/model/pothole_model.h5
+
+# Restart the server:
+python app.py</code></pre>
+    <div class="activate-note">The server auto-detects the model file on startup. No code changes required.</div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ────────────────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="nav-logo-icon">🛣️</span>
+      <span class="footer-name">PotholeAI</span>
+    </div>
+    <p class="footer-desc">AI-powered road surface classification · MobileNetV2 · TensorFlow</p>
+    <p class="footer-copy">Built for the Kaggle project: Pothole and Plain Road Classification</p>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>
